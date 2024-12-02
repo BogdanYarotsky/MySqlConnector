@@ -79,6 +79,8 @@ internal sealed partial class SchemaProvider
 			await FillIndexesAsync(ioBehavior, dataTable, "Indexes", restrictionValues, cancellationToken).ConfigureAwait(false);
 		else if (string.Equals(collectionName, "IndexColumns", StringComparison.OrdinalIgnoreCase))
 			await FillIndexColumnsAsync(ioBehavior, dataTable, "IndexColumns", restrictionValues, cancellationToken).ConfigureAwait(false);
+		else if (string.Equals(collectionName, "Users", StringComparison.OrdinalIgnoreCase))
+			await FillUsersAsync(ioBehavior, dataTable, "Users", restrictionValues, cancellationToken).ConfigureAwait(false);
 		else
 			throw new ArgumentException($"Invalid collection name: '{collectionName}'.", nameof(collectionName));
 
@@ -129,6 +131,7 @@ internal sealed partial class SchemaProvider
 		dataTable.Rows.Add("Foreign Keys", 4, 0);
 		dataTable.Rows.Add("Indexes", 4, 0);
 		dataTable.Rows.Add("IndexColumns", 5, 0);
+		dataTable.Rows.Add("Users", 1, 0);
 
 		return Task.CompletedTask;
 	}
@@ -647,6 +650,7 @@ internal sealed partial class SchemaProvider
 		dataTable.Rows.Add("IndexColumns", "Table", "TABLE_NAME", 3);
 		dataTable.Rows.Add("IndexColumns", "Name", "INDEX_NAME", 4);
 		dataTable.Rows.Add("IndexColumns", "Column", "COLUMN_NAME", 5);
+		dataTable.Rows.Add("Users", "Name", "USER_NAME", 1);
 
 		return Task.CompletedTask;
 	}
@@ -893,6 +897,21 @@ internal sealed partial class SchemaProvider
 		]);
 
 		await DoFillIndexColumnsAsync(ioBehavior, dataTable, restrictionValues, cancellationToken).ConfigureAwait(false);
+	}
+
+	private async Task FillUsersAsync(IOBehavior ioBehavior, DataTable dataTable, string tableName, string?[]? restrictionValues, CancellationToken cancellationToken)
+	{
+		if (restrictionValues is { Length: > 1 })
+			throw new ArgumentException("More than 1 restrictionValues are not supported for schema 'Users'.", nameof(restrictionValues));
+
+		dataTable.TableName = tableName;
+		dataTable.Columns.AddRange(
+		[
+			new("HOST", typeof(string)),
+			new("USERNAME", typeof(string)),
+		]);
+
+		await DoFillUsersAsync(ioBehavior, dataTable, restrictionValues, cancellationToken).ConfigureAwait(false);
 	}
 
 }
