@@ -835,3 +835,15 @@
     type: int
   - name: SORT_ORDER
     type: string
+
+- name: Users
+  description: information about users in the server's SQL syntax
+  custom: DoFillUsersAsync
+  restrictions:
+    - name: Name
+      default: USER_NAME
+  columns:
+    - name: HOST
+      type: string
+    - name: USERNAME
+      type: string

@@ -258,5 +258,25 @@ public class SchemaProviderTests : IClassFixture<SchemaProviderFixture>, IDispos
 		Assert.Equal(expected, actual);
 	}
 
+	[Fact]
+	public void Users()
+	{
+		var schemaName = m_database.Connection.Database;
+		var table = m_database.Connection.GetSchema("Users");
+
+
+		var actual = table.Rows
+			.Cast<DataRow>()
+			.OrderBy(x => (string) x["INDEX_NAME"])
+			.Select(x => ((string) x["INDEX_SCHEMA"], (string) x["INDEX_NAME"], (string) x["TABLE_NAME"], (bool) x["UNIQUE"], (bool) x["PRIMARY"], (string) x["TYPE"]));
+		var expected = new[]
+		{
+			(schemaName, "pk_test_ix", "pk_test", false, false, "BTREE"),
+			(schemaName, "pk_test_uq", "pk_test", true, false, "BTREE"),
+			(schemaName, "PRIMARY", "pk_test", true, true, "BTREE"),
+		};
+		Assert.Equal(expected, actual);
+	}
+
 	readonly DatabaseFixture m_database;
 }
